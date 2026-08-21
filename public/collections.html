@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collections Dashboard</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Filled in by shell.js from the single nav list, so a new dashboard is
+       added in exactly one place. -->
+  <nav class="sidebar" data-nav="collections" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Collections Dashboard</h1>
+        <p>Paid vs. pending collections, month by month</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="field">
+        <label for="fromDate">From (payment due)</label>
+        <input type="date" id="fromDate" />
+      </div>
+      <div class="field">
+        <label for="toDate">To (payment due)</label>
+        <input type="date" id="toDate" />
+      </div>
+      <div class="presets" role="group" aria-label="Quick ranges">
+        <button type="button" data-preset="ytd">This year</button>
+        <button type="button" data-preset="last6">Last 6 months</button>
+        <button type="button" data-preset="next6">Next 6 months</button>
+      </div>
+      <button id="runBtn" class="run-btn">Load collections</button>
+      <button id="csvBtn" class="csv-btn" disabled>Download CSV</button>
+    </section>
+
+    <section id="status" class="status"></section>
+
+    <div id="dashboard" hidden>
+      <section class="summary">
+        <div class="stat">
+          <span class="stat-value" id="statExpected">—</span>
+          <span class="stat-label">Expected in range</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="statPaid">—</span>
+          <span class="stat-label paid">Collected</span>
+        </div>
+        <button type="button" class="stat stat-clickable" id="pendingTile">
+          <span class="stat-value" id="statPending">—</span>
+          <span class="stat-label pending-amt">Pending</span>
+          <span class="stat-hint">View details</span>
+        </button>
+        <div class="stat">
+          <span class="stat-value" id="statOverdue">—</span>
+          <span class="stat-label overdue">Pending &amp; past due</span>
+        </div>
+        <div class="stat stat-meter">
+          <span class="stat-value" id="statRate">—</span>
+          <span class="stat-label">Collection rate</span>
+          <div class="meter"><div class="meter-fill" id="meterFill"></div></div>
+        </div>
+      </section>
+
+      <section class="card chart-card">
+        <div class="card-head">
+          <h2>Collections by month</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Each column is the total scheduled for that month — instalments and
+          loans on their due date, full payments on the deal's closing date.
+          Pending counts only payments whose CRM paid checkbox is still
+          unticked. Registration amounts are not tracked here.
+        </p>
+        <div class="chart-scroll">
+          <div id="chart" class="chart" role="img" aria-label="Stacked column chart of collected versus pending amounts by month"></div>
+        </div>
+        <div id="tooltip" class="tooltip" hidden></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Month breakdown</h2>
+          <p class="card-hint">Click any pending amount to see the deals behind it.</p>
+        </div>
+        <div class="table-wrap flat">
+          <table id="monthTable">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Pending drill-down -->
+  <div id="drill" class="drill" hidden>
+    <div class="drill-backdrop" data-close></div>
+    <div class="drill-panel" role="dialog" aria-modal="true" aria-labelledby="drillTitle">
+      <header class="drill-head">
+        <div>
+          <h2 id="drillTitle">Pending collections</h2>
+          <p id="drillSub" class="drill-sub"></p>
+        </div>
+        <div class="drill-actions">
+          <div class="field search-field">
+            <label for="drillSearch" class="sr-only">Search these payments</label>
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <circle cx="9" cy="9" r="5.5" stroke="currentColor"/>
+              <path d="M13 13l4 4" stroke="currentColor" stroke-linecap="round"/>
+            </svg>
+            <input type="search" id="drillSearch" placeholder="Deal, email, phone…" />
+          </div>
+          <button type="button" id="drillXlsx" class="run-btn">Download Excel</button>
+          <button type="button" class="drill-close" data-close aria-label="Close">&times;</button>
+        </div>
+      </header>
+
+      <div class="drill-stats" id="drillStats"></div>
+
+      <div class="drill-body">
+        <div class="table-wrap flat">
+          <table id="drillTable">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="collections.js"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment Mix</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Payment Mix</h1>
+        <p>Which payment shapes the money sits in, and which of them land</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">expected in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <div class="grid-2">
+        <section class="card">
+          <div class="card-head">
+            <h2>By payment type</h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+              <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+            </div>
+          </div>
+          <p class="card-note">Click a bar to filter every dashboard to that type.</p>
+          <div class="viz" id="typeChart"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>By instalment component</h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+              <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+            </div>
+          </div>
+          <p class="card-note">Registration amounts are not scheduled here.</p>
+          <div class="viz" id="componentChart"></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Component detail</h2>
+          <p class="card-hint">Click a column heading to sort.</p>
+        </div>
+        <div class="table-wrap flat">
+          <table id="componentTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Payment type detail</h2></div>
+        <div class="table-wrap flat">
+          <table id="typeTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="mix.js"></script>
+</body>
+</html>

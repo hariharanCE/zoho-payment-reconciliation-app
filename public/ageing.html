@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ageing &amp; Overdue</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Ageing &amp; Overdue</h1>
+        <p>How old the unpaid money is, and what has been late the longest</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">past due in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>How late is the pending money</h2>
+        </div>
+        <p class="card-note">
+          Unpaid scheduled payments bucketed by how long ago they were due. The
+          buckets darken with age, and each one is named beside its bar — the
+          ordering never depends on colour alone.
+        </p>
+        <div class="viz" id="ageingChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Bucket detail</h2></div>
+        <div class="table-wrap flat">
+          <table id="ageingTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>The oldest unpaid payments</h2>
+          <p class="card-hint">Longest overdue first.</p>
+        </div>
+        <p class="card-note">
+          The chase list, with the contact details on the row. Every column
+          sorts, so it can also be worked biggest-first or by owner.
+        </p>
+        <div class="table-wrap flat scroll">
+          <table id="oldestTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="ageing.js"></script>
+</body>
+</html>

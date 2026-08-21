@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment Reconciliation</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Filled in by shell.js from the single nav list, so a new dashboard is
+       added in exactly one place. -->
+  <nav class="sidebar" data-nav="reconciliation" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Payment Reconciliation</h1>
+        <p>CRM Closed Won deals vs. Zoho Books invoices</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaRows">—</b>
+        <span>deals in view</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls">
+      <div class="field">
+        <label for="fromDate">From (Closing Date)</label>
+        <input type="date" id="fromDate" />
+      </div>
+      <div class="field">
+        <label for="toDate">To (Closing Date)</label>
+        <input type="date" id="toDate" />
+      </div>
+      <button id="runBtn" class="run-btn">
+        <span class="btn-label">Run report</span>
+      </button>
+      <button id="csvBtn" class="csv-btn" disabled>Download CSV</button>
+    </section>
+
+    <section id="status" class="status" role="status"></section>
+
+    <section class="summary" id="summary" hidden>
+      <button type="button" class="stat stat-clickable" data-result="MATCH">
+        <span class="stat-value" id="statMatch">0</span>
+        <span class="stat-label match">Match</span>
+        <span class="stat-hint">Filter</span>
+      </button>
+      <button type="button" class="stat stat-clickable" data-result="MISMATCH">
+        <span class="stat-value" id="statMismatch">0</span>
+        <span class="stat-label mismatch">Mismatch</span>
+        <span class="stat-hint">Filter</span>
+      </button>
+      <button type="button" class="stat stat-clickable" data-result="PENDING">
+        <span class="stat-value" id="statPending">0</span>
+        <span class="stat-label pending">Pending</span>
+        <span class="stat-hint">Filter</span>
+      </button>
+      <div class="stat">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">Total deals</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statGap">₹0</span>
+        <span class="stat-label overdue">CRM vs Books gap</span>
+        <span class="stat-sub">across mismatched deals</span>
+      </div>
+    </section>
+
+    <section class="filterbar" id="filterbar" aria-label="Filters" hidden>
+      <div class="field search-field">
+        <label for="searchBox">Search</label>
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="9" cy="9" r="5.5" stroke="currentColor"/>
+          <path d="M13 13l4 4" stroke="currentColor" stroke-linecap="round"/>
+        </svg>
+        <input type="search" id="searchBox" placeholder="Deal, email, phone, batch…" />
+      </div>
+      <div class="field">
+        <label id="resultLabel">Validation result</label>
+        <div class="segmented" role="group" aria-labelledby="resultLabel" id="resultFilter">
+          <button type="button" data-result="all" aria-pressed="true">All</button>
+          <button type="button" data-result="MATCH" aria-pressed="false">Match</button>
+          <button type="button" data-result="MISMATCH" aria-pressed="false">Mismatch</button>
+          <button type="button" data-result="PENDING" aria-pressed="false">Pending</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="columnMode">Columns</label>
+        <select id="columnMode">
+          <option value="key">Key columns</option>
+          <option value="all">All columns</option>
+        </select>
+      </div>
+      <button type="button" id="clearFilters" class="ghost-btn" disabled>Clear filters</button>
+    </section>
+
+    <section class="table-wrap">
+      <table id="reportTable"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+    </section>
+  </main>
+
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Batch Performance</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Batch Performance</h1>
+        <p>Which batches are collecting, and which are carrying the shortfall</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">pending in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Collection by batch</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Every scheduled payment in the range, grouped by the deal's batch and
+          split by whether its CRM paid checkbox is ticked. Click a bar to filter
+          this and every other dashboard to that batch.
+        </p>
+        <div class="viz" id="batchChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Batch detail</h2>
+          <p class="card-hint">Click a column heading to sort.</p>
+        </div>
+        <div class="table-wrap flat">
+          <table id="batchTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="batches.js"></script>
+</body>
+</html>

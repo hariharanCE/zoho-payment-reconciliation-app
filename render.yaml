@@ -1,0 +1,32 @@
+# Optional Render Blueprint. Commit this and use "New > Blueprint" to create
+# the service with these settings already filled in; or skip the file entirely
+# and configure the same values by hand in the Render dashboard.
+#
+# Every Zoho value is marked `sync: false`, which means Render prompts for it
+# once and stores it as a secret — the values are never written into this file
+# and never reach the repo.
+services:
+  - type: web
+    name: zoho-reconciliation
+    runtime: node
+    plan: free
+    # Closest Render region to Zoho's India data centre (zohoapis.in).
+    region: singapore
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: ZOHO_ACCOUNTS_URL
+        sync: false
+      - key: ZOHO_API_DOMAIN
+        sync: false
+      - key: ZOHO_CLIENT_ID
+        sync: false
+      - key: ZOHO_CLIENT_SECRET
+        sync: false
+      - key: ZOHO_REFRESH_TOKEN
+        sync: false
+      - key: ZOHO_BOOKS_ORG_ID
+        sync: false
+      # NOTE: PORT is deliberately absent. Render injects its own PORT and
+      # server.js already reads it; setting one here breaks port detection.

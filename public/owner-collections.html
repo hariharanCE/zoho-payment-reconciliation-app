@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collections by Deal Owner</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Collections by Deal Owner</h1>
+        <p>What each owner has collected, what is still pending, and who to chase</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">pending in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Collected vs pending, by deal owner</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Every scheduled payment in the range, grouped by the owner on the CRM
+          deal and split by whether its CRM paid checkbox is ticked. Click a bar
+          to filter the whole page to that owner.
+        </p>
+        <div class="viz" id="ownerChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Owner totals</h2>
+          <p class="card-hint">Click a column heading to sort.</p>
+        </div>
+        <div class="table-wrap flat">
+          <table id="ownerTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2 id="customerHeading">Customers</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Each bar is one customer's deal. Click a bar — or any row in the table
+          below — to open that customer's full details and payment schedule.
+        </p>
+        <div class="viz" id="customerChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Customer detail</h2>
+          <p class="card-hint">Click a row to open the customer.</p>
+        </div>
+        <div class="table-wrap flat scroll">
+          <table id="customerTable" class="data-table is-clickable"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="owner-collections.js"></script>
+</body>
+</html>

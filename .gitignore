@@ -1,0 +1,17 @@
+# Secrets — never commit. .env holds the live Zoho client secret and the
+# long-lived refresh token; on Render these are set in the dashboard instead.
+.env
+.env.*
+!.env.example
+
+# Dependencies (Render runs npm ci from package-lock.json)
+node_modules/
+
+# Logs and OS/editor noise
+npm-debug.log*
+yarn-error.log*
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

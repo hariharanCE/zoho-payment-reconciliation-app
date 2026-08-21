@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collection Trend</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Collection Trend</h1>
+        <p>How the shortfall has built up, month by month</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">shortfall in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Cumulative expected vs collected</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch expected"></i>Expected to date</span>
+            <span class="legend-item"><i class="swatch paid"></i>Collected to date</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Both lines are running totals of the same measure in rupees, so the gap
+          between them is the shortfall that has built up by the end of each
+          month. Hover, or focus the plot and use the arrow keys.
+        </p>
+        <div class="viz" id="trendChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Month by month</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          The same months, not stacked up — what each one was owed on its own.
+        </p>
+        <div class="viz" id="monthChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Month detail</h2>
+          <p class="card-hint">Click a column heading to sort.</p>
+        </div>
+        <div class="table-wrap flat">
+          <table id="trendTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="trend.js"></script>
+</body>
+</html>

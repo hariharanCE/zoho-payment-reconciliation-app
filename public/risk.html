@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>At-Risk Deals</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>At-Risk Deals</h1>
+        <p>Who to call first, and everything needed to make the call</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">pending in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Where the pending money is concentrated</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          The deals carrying the most unpaid money in the current view. Click a
+          bar to search this dashboard down to that one deal.
+        </p>
+        <div class="viz" id="riskChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Deal detail</h2>
+          <p class="card-hint">Click a row to see that deal's individual payments.</p>
+        </div>
+        <p class="card-note">
+          Ranked by pending amount. Every column sorts, so the same list can be
+          worked by how late it is, or by owner.
+        </p>
+        <div class="table-wrap flat scroll">
+          <table id="riskTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="risk.js"></script>
+</body>
+</html>
