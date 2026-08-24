@@ -40,10 +40,16 @@ window.Shell = (function () {
       label: "By Deal Owner",
       icon: '<circle cx="10" cy="6.5" r="3"/><path d="M4 16.5c0-3 2.7-5 6-5s6 2 6 5" stroke-linecap="round"/>',
     },
-    // The other insight dashboards (batches, owners, ageing, mix, trend, risk)
-    // are deliberately not listed. The pages and their scripts are still
-    // served, and still work if opened directly — this menu is the only thing
-    // that changed, so putting one back is a matter of adding its entry here.
+    {
+      id: "insights",
+      href: "insights.html",
+      label: "Insights",
+      icon: '<path d="M10 2.5a5 5 0 0 0-3 9v2h6v-2a5 5 0 0 0-3-9Z"/><path d="M8 16.5h4" stroke-linecap="round"/>',
+    },
+    // The single-question dashboards (batches, owners, ageing, mix, trend,
+    // risk) are deliberately not listed. Insights above carries all six on one
+    // page; the originals are still served and still work if opened directly,
+    // so putting one back in the menu is a matter of adding its entry here.
   ];
 
   function renderNav(activeId) {

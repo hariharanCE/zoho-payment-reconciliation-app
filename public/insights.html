@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Insights</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="sidebar" aria-label="Dashboards"></nav>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="titles">
+        <h1>Insights</h1>
+        <p>Every angle on the same money, on one page</p>
+      </div>
+      <div class="topbar-meta" id="topMeta" hidden>
+        <b id="metaValue">—</b>
+        <span id="metaLabel">pending in range</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="controls"></div>
+    <section id="status" class="status" role="status"></section>
+
+    <div id="dashboard" hidden>
+      <div id="filters"></div>
+      <section class="kpis" id="kpis"></section>
+
+      <!-- ===== What stands out =====
+           The only part of the app that reads the numbers rather than just
+           printing them. Every line is derived from the rows currently in
+           view, so it re-reads whenever a filter changes. -->
+      <section class="card">
+        <div class="card-head">
+          <h2>What stands out</h2>
+          <span class="card-hint" id="findingCount"></span>
+        </div>
+        <p class="card-note">
+          Read straight off the rows in view — change a filter and these change
+          with it. Each one names the figure it came from, so it can be checked
+          against the tables below rather than taken on trust. Comparisons of
+          collection rate run over money that has already fallen due, so a
+          batch whose instalments are still months away is never called a poor
+          performer for money nobody has asked for yet.
+        </p>
+        <ul class="findings" id="observations"></ul>
+      </section>
+
+      <!-- ===== Trend ===== -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Collection trend</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch expected"></i>Expected to date</span>
+            <span class="legend-item"><i class="swatch paid"></i>Collected to date</span>
+          </div>
+        </div>
+        <p class="card-note">
+          The running total of what was due against what came in. The gap
+          between the lines is the shortfall as it accumulates.
+        </p>
+        <div class="viz" id="trendChart"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Month by month</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          A month that collected badly is invisible in a cumulative line that
+          only ever climbs, so it is shown per month as well.
+        </p>
+        <div class="viz" id="monthChart"></div>
+      </section>
+
+      <!-- ===== Ageing ===== -->
+      <section class="card">
+        <div class="card-head">
+          <h2>How old the pending money is</h2>
+        </div>
+        <p class="card-note">
+          Unpaid payments only, bucketed by how long ago they fell due. Full
+          payments carry no due date in CRM, so they sit in their own bucket
+          rather than being called late or "not yet due".
+        </p>
+        <div class="viz" id="ageingChart"></div>
+        <div class="table-wrap flat">
+          <table id="ageingTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+
+      <!-- ===== Breakdowns ===== -->
+      <div class="grid-2">
+        <section class="card">
+          <div class="card-head">
+            <h2>By batch</h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+              <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+            </div>
+          </div>
+          <p class="card-note">Click a bar to filter the whole page to that batch.</p>
+          <div class="viz" id="batchChart"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>By deal owner</h2>
+            <div class="legend">
+              <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+              <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+            </div>
+          </div>
+          <p class="card-note">Click a bar to filter the whole page to that owner.</p>
+          <div class="viz" id="ownerChart"></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>By payment type</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch paid"></i>Collected</span>
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          Whether the money is scheduled as instalments, a loan or paid up
+          front, and how well each one actually collects.
+        </p>
+        <div class="viz" id="typeChart"></div>
+      </section>
+
+      <!-- ===== Concentration ===== -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Where the pending money is concentrated</h2>
+          <div class="legend">
+            <span class="legend-item"><i class="swatch pending"></i>Pending</span>
+          </div>
+        </div>
+        <p class="card-note">
+          The deals carrying the most unpaid money. Click a bar to open that
+          customer, with contact details and the full payment schedule.
+        </p>
+        <div class="viz" id="concChart"></div>
+      </section>
+
+      <!-- ===== The chase list ===== -->
+      <section class="card">
+        <div class="card-head">
+          <h2>Deals still owing</h2>
+          <p class="card-hint">Click a row to open the customer.</p>
+        </div>
+        <p class="card-note">
+          Ranked by pending amount. Every column sorts, so the same list can be
+          worked by how late it is, by owner, or by batch.
+        </p>
+        <div class="table-wrap flat scroll">
+          <table id="riskTable" class="data-table"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="xlsx.js"></script>
+  <script src="viz.js"></script>
+  <script src="shell.js"></script>
+  <script src="insights.js"></script>
+</body>
+</html>

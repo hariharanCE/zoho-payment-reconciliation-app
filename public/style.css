@@ -1485,3 +1485,51 @@ tr.subrow td:first-child { padding-left: 34px; }
   .detail-panel { border-radius: 0; max-height: 100%; }
   .detail-grid { grid-template-columns: max-content 1fr; }
 }
+
+/* ===============================
+   Findings — the "What stands out" panel on the Insights dashboard.
+
+   A read of the numbers rather than a plot of them, so it is set as prose,
+   not as tiles. The tone is carried by a left rule and the label beside it,
+   never by colour alone: the sentence always names the figure it came from,
+   so a reader who cannot separate the rust from the moss loses nothing.
+   =============================== */
+.findings {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.finding {
+  position: relative;
+  padding: 10px 14px 10px 34px;
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 96ch;
+  color: var(--ink);
+}
+/* The dot repeats the left rule, so the tone survives a narrow column where
+   the 3px rule is easy to miss. The sentence itself always stays ink — tone
+   tints the furniture, never the text, which has to stay readable. */
+.finding::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 17px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--axis);
+}
+.finding.tone-good { border-left-color: var(--series-paid); }
+.finding.tone-good::before { background: var(--series-paid); }
+.finding.tone-warn { border-left-color: var(--series-pending); }
+.finding.tone-warn::before { background: var(--series-pending); }
+.finding.tone-bad { border-left-color: var(--rust); }
+.finding.tone-bad::before { background: var(--rust); }
+.finding.tone-neutral { border-left-color: var(--axis); }
