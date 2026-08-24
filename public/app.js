@@ -223,13 +223,7 @@
     );
 
     try {
-      const resp = await fetch("/api/run-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fromDate, toDate }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || "Unknown error");
+      const data = await Viz.postJson("/api/run-report", { fromDate, toDate });
 
       allRows = data.rows;
       updateSummary(allRows);

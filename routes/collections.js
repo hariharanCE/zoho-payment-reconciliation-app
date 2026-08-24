@@ -1,6 +1,7 @@
 const express = require("express");
 const { fetchAllClosedWonDeals } = require("../lib/zohoClient");
 const { buildCollections } = require("../lib/collections");
+const { startHeartbeat } = require("../lib/heartbeat");
 
 const router = express.Router();
 
@@ -13,27 +14,31 @@ function todayIso() {
 }
 
 router.post("/collections", async (req, res) => {
+  const { fromDate, toDate } = req.body;
+
+  // Validated before the heartbeat starts, so bad input still gets a 400.
+  if (!ISO_DATE.test(fromDate || "") || !ISO_DATE.test(toDate || "")) {
+    return res
+      .status(400)
+      .json({ error: "fromDate and toDate are required, in yyyy-MM-dd format." });
+  }
+  if (fromDate > toDate) {
+    return res.status(400).json({ error: "fromDate must not be after toDate." });
+  }
+
+  // Lighter than /run-report, but the CRM fetch still pages through every
+  // Closed Won deal, which can outlast a proxy's idle timeout on its own.
+  const beat = startHeartbeat(req, res, "collections");
+
   try {
-    const { fromDate, toDate } = req.body;
-
-    if (!ISO_DATE.test(fromDate || "") || !ISO_DATE.test(toDate || "")) {
-      return res
-        .status(400)
-        .json({ error: "fromDate and toDate are required, in yyyy-MM-dd format." });
-    }
-    if (fromDate > toDate) {
-      return res.status(400).json({ error: "fromDate must not be after toDate." });
-    }
-
     // No Books lookups here — the month-wise split comes entirely from CRM's
     // per-component paid checkboxes, so this is a single CRM fetch.
     const allDeals = await fetchAllClosedWonDeals();
     const result = buildCollections(allDeals, fromDate, toDate, todayIso());
 
-    res.json({ totalClosedWonDeals: allDeals.length, ...result });
+    beat.send({ totalClosedWonDeals: allDeals.length, ...result });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    beat.fail(err);
   }
 });
 

@@ -689,13 +689,7 @@ window.Shell = (function () {
       els.dashboard.classList.add("loading");
 
       try {
-        const resp = await fetch("/api/collections", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fromDate, toDate }),
-        });
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || "Unknown error");
+        const data = await Viz.postJson("/api/collections", { fromDate, toDate });
         payload = data;
         Viz.cache.write(fromDate, toDate, data);
         afterLoad(false);

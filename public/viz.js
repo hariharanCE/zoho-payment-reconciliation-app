@@ -882,6 +882,58 @@ window.Viz = (function () {
     },
   };
 
+  // ===============================
+  // POST a JSON body and read the reply defensively.
+  //
+  // The reports run long, so a reply can come from something other than
+  // Express: Render's edge returns an empty 502/504 body when it gives up on
+  // a slow request, and a crashed process yields nothing at all. Calling
+  // `resp.json()` straight away turns every one of those into the useless
+  // "Unexpected end of JSON input" — the status code, the one fact that says
+  // what actually happened, is lost. So read the body as text first and
+  // report what came back.
+  //
+  // The long routes always answer 200 and carry failures as `{ error }` in
+  // the body (they must commit to a status before the work finishes, see
+  // lib/heartbeat.js), so an `error` field is thrown regardless of status.
+  // ===============================
+  async function postJson(url, body) {
+    let resp;
+    try {
+      resp = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      throw new Error(
+        `Could not reach the server (${err.message}). It may still be starting up — wait a moment and try again.`
+      );
+    }
+
+    const text = await resp.text();
+
+    if (!text.trim()) {
+      throw new Error(
+        resp.status === 502 || resp.status === 504
+          ? `The server took too long and the connection was cut (HTTP ${resp.status}). Narrow the date range and try again.`
+          : `The server closed the connection without sending a reply (HTTP ${resp.status}).`
+      );
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      // An HTML error page from the proxy, most often.
+      throw new Error(`HTTP ${resp.status}: ${trim(text.replace(/<[^>]*>/g, " ").trim(), 200)}`);
+    }
+
+    if (data && data.error) throw new Error(data.error);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return data;
+  }
+
   return {
     COLOR,
     money,
@@ -900,5 +952,6 @@ window.Viz = (function () {
     toast,
     download,
     cache,
+    postJson,
   };
 })();
