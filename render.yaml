@@ -10,6 +10,11 @@ services:
     name: zoho-reconciliation
     runtime: node
     plan: free
+    # Pinned deliberately. The deploy branch was left implicit once before, so
+    # renaming main to rollback-stable left Render fetching a ref that no
+    # longer existed ("failed to fetch commit or branch from GitHub"). Naming
+    # it here means a rename shows up as a diff in this file instead.
+    branch: rollback-stable
     # Closest Render region to Zoho's India data centre (zohoapis.in).
     region: singapore
     buildCommand: npm ci
