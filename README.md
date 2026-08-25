@@ -323,6 +323,45 @@ Just set the same environment variables from `.env` in whatever
 platform's config/secrets panel, and run `npm start` (or let the
 platform run it via `npm install && npm start`).
 
+**It must be deployed as a running Node service, not as static hosting.**
+The dashboards are plain files in `public/`, so a static host will serve
+them perfectly — and then every report fails, because the Zoho calls (and
+the secrets they need) live in the Node process. On Render that means a
+**Web Service**, not a **Static Site**:
+
+| Setting | Value |
+|---|---|
+| Type | Web Service (runtime: Node) |
+| Build command | `npm ci` |
+| Start command | `npm start` |
+| Health check path | `/api/health` |
+| Branch | whatever you deploy from — see `render.yaml` |
+| Environment | the `ZOHO_*` vars from `.env`; **do not** set `PORT` |
+
+Render can't convert a Static Site into a Web Service, so if one was
+created by mistake, make the Web Service and delete the static one.
+
+After any deploy, confirm the API is really live:
+
+```bash
+npm run check-deploy -- https://your-app.onrender.com
+```
+
+It checks that `/api/health` answers JSON, that the pages are served
+uncached with build-stamped asset URLs, and that a rejected request still
+comes back as JSON. Anything it flags, it explains.
+
+## Troubleshooting the deployed app
+
+Symptoms that look like data or JSON problems but aren't:
+
+| What you see | What it actually means |
+|---|---|
+| `there is no API behind them: /api/health did not return JSON` | The host is serving `public/` as files — no Node process. See the deploy table above. |
+| `Failed to execute 'json' on 'Response': Unexpected end of JSON input` | An old cached bundle is running in the browser. Current builds never call `resp.json()`; hard-reload, and check `/` is served `no-store` with `?v=` stamped assets. |
+| `The server took too long and the connection was cut (HTTP 502/504)` | A genuine timeout. Narrow the date range; the keep-alive in `lib/heartbeat.js` covers idle-timeouts, not unbounded work. |
+| `The connection dropped while reading the reply` | The process died mid-report — most often out of memory on a small instance. Check the service logs. |
+
 ## Troubleshooting auth
 
 Zoho's token endpoint returns a different error string per cause, so the

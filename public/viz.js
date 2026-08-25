@@ -897,20 +897,66 @@ window.Viz = (function () {
   // the body (they must commit to a status before the work finishes, see
   // lib/heartbeat.js), so an `error` field is thrown regardless of status.
   // ===============================
-  // Render's free instances spin down when idle and take tens of seconds to
-  // come back. A report POST that lands on a cold instance can be dropped at
-  // the edge before Express ever sees it. This costs one cheap round trip and
-  // takes that failure mode off the table; if it fails, say nothing and let
-  // the real request report the problem properly.
-  async function wakeServer() {
+  // ===============================
+  // Is there actually a server behind these pages?
+  //
+  // This is not a hypothetical. The app was once deployed to Render as a
+  // Static Site rather than a Web Service: the pages loaded perfectly, and
+  // every /api call hit a plain file server instead of Express. A file
+  // server ignores the method, so POST /api/run-report came back 200 with an
+  // empty body, and the only symptom was a report that "closed the
+  // connection without sending a reply" after a long wait.
+  //
+  // /api/health tells the two apart in one cheap round trip: the Node app
+  // answers JSON, a file server answers 404 (or an HTML page). Doing it
+  // BEFORE the report also wakes an instance that has spun down, so a cold
+  // start is not paid for out of the report's own request.
+  // ===============================
+  const API_MISSING =
+    "The pages are being served, but there is no API behind them: /api/health " +
+    "did not return JSON. The host is serving the public/ folder as static " +
+    "files instead of running the Node server. On Render the service must be a " +
+    "Web Service (build: npm ci, start: npm start), not a Static Site.";
+
+  // "up" once proven; re-probed while unproven, so a server that was merely
+  // asleep or restarting is not written off for the rest of the session.
+  let apiState = null;
+
+  async function probeApi() {
+    if (apiState === "up") return apiState;
+
+    let resp;
     try {
       const controller = new AbortController();
+      // A spun-down free instance can take the best part of a minute to boot.
       const timer = setTimeout(() => controller.abort(), 60000);
-      await fetch("/api/health", { cache: "no-store", signal: controller.signal });
+      resp = await fetch("/api/health", { cache: "no-store", signal: controller.signal });
       clearTimeout(timer);
     } catch (err) {
-      /* not fatal — the POST below reports whatever is actually wrong */
+      // Offline, aborted, DNS — say nothing and let the real request report
+      // it, with its own status code to go on.
+      apiState = null;
+      return apiState;
     }
+
+    let text = "";
+    try {
+      text = await resp.text();
+    } catch (err) {
+      /* treated as a non-answer below */
+    }
+
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      /* not JSON — a file server's 404 page, or a proxy's */
+    }
+
+    // Anything other than this app's own health JSON means the request never
+    // reached Express, whatever the status code says.
+    apiState = data && data.ok ? "up" : "missing";
+    return apiState;
   }
 
   // A failure this quick is a cold start or a dropped edge connection, not
@@ -954,6 +1000,10 @@ window.Viz = (function () {
     }
 
     if (!text.trim()) {
+      // An empty 200 to a POST is not a timeout — a timed-out request is cut
+      // with a 502/504. It is what a static file server returns when it has
+      // no idea what to do with the method, so name that cause first.
+      if (resp.ok) throw new Error(API_MISSING);
       throw transportError(
         resp.status === 502 || resp.status === 504
           ? `The server took too long and the connection was cut (HTTP ${resp.status}). Narrow the date range and try again.`
@@ -968,7 +1018,10 @@ window.Viz = (function () {
       // needs no special handling beyond not choking on it.
       data = JSON.parse(text);
     } catch (err) {
-      // An HTML error page from the proxy, most often.
+      // Every endpoint here answers JSON, including its 404s. A non-JSON body
+      // means something other than this app replied: a proxy error page, or a
+      // file server that has never heard of /api.
+      if (resp.status === 404) throw new Error(API_MISSING);
       throw new Error(`HTTP ${resp.status}: ${trim(text.replace(/<[^>]*>/g, " ").trim(), 200)}`);
     }
 
@@ -989,7 +1042,7 @@ window.Viz = (function () {
   // lib/heartbeat.js), so an `error` field is thrown regardless of status.
   // ===============================
   async function postJson(url, body) {
-    await wakeServer();
+    if ((await probeApi()) === "missing") throw new Error(API_MISSING);
 
     const startedAt = Date.now();
     try {

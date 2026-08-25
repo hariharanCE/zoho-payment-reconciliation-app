@@ -6,6 +6,11 @@
 # once and stores it as a secret — the values are never written into this file
 # and never reach the repo.
 services:
+  # `type: web` is load-bearing, not boilerplate. This app was once deployed
+  # as a Render Static Site: the pages loaded, the charts drew, and every
+  # report failed — a file server answered POST /api/run-report with an empty
+  # 200 because there was no Node process to answer it. The dashboards are
+  # only files; the Zoho calls and the secrets they need live in the server.
   - type: web
     name: zoho-reconciliation
     runtime: node
