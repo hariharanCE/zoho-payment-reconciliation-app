@@ -7,7 +7,7 @@
 // ===============================
 
 // Formatting, the series colours and the SVG helpers all come from the shared
-// toolkit, so this page and the insights dashboard print a rupee figure the
+// toolkit, so this page and every insight dashboard print a rupee figure the
 // same way and read the same CSS variables for the series colours — the chart,
 // the legend and the table swatches can never drift apart.
 const {
