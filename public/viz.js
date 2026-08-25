@@ -897,24 +897,64 @@ window.Viz = (function () {
   // the body (they must commit to a status before the work finishes, see
   // lib/heartbeat.js), so an `error` field is thrown regardless of status.
   // ===============================
-  async function postJson(url, body) {
+  // Render's free instances spin down when idle and take tens of seconds to
+  // come back. A report POST that lands on a cold instance can be dropped at
+  // the edge before Express ever sees it. This costs one cheap round trip and
+  // takes that failure mode off the table; if it fails, say nothing and let
+  // the real request report the problem properly.
+  async function wakeServer() {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 60000);
+      await fetch("/api/health", { cache: "no-store", signal: controller.signal });
+      clearTimeout(timer);
+    } catch (err) {
+      /* not fatal — the POST below reports whatever is actually wrong */
+    }
+  }
+
+  // A failure this quick is a cold start or a dropped edge connection, not
+  // work that ran out of time. Anything slower has done real work and must
+  // not be silently repeated — these reports take minutes.
+  const RETRYABLE_MS = 20000;
+
+  // A transport failure: nothing usable came back, so a second attempt might
+  // still succeed. An { error } body is a considered answer from the server
+  // and repeating it would only re-run the same minutes of work.
+  function transportError(message) {
+    const err = new Error(message);
+    err.retryable = true;
+    return err;
+  }
+
+  async function attemptPost(url, body) {
     let resp;
     try {
       resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        cache: "no-store",
         body: JSON.stringify(body),
       });
     } catch (err) {
-      throw new Error(
+      throw transportError(
         `Could not reach the server (${err.message}). It may still be starting up — wait a moment and try again.`
       );
     }
 
-    const text = await resp.text();
+    // Read as text, never resp.json(). An empty or non-JSON body is the norm
+    // when a proxy gives up, and resp.json() would throw away the status code
+    // — the one fact that says what actually happened — in favour of
+    // "Unexpected end of JSON input".
+    let text;
+    try {
+      text = await resp.text();
+    } catch (err) {
+      throw transportError(`The connection dropped while reading the reply (${err.message}).`);
+    }
 
     if (!text.trim()) {
-      throw new Error(
+      throw transportError(
         resp.status === 502 || resp.status === 504
           ? `The server took too long and the connection was cut (HTTP ${resp.status}). Narrow the date range and try again.`
           : `The server closed the connection without sending a reply (HTTP ${resp.status}).`
@@ -923,6 +963,9 @@ window.Viz = (function () {
 
     let data;
     try {
+      // The long routes pad the reply with keep-alive spaces while they work
+      // (see lib/heartbeat.js); leading whitespace is valid JSON, so this
+      // needs no special handling beyond not choking on it.
       data = JSON.parse(text);
     } catch (err) {
       // An HTML error page from the proxy, most often.
@@ -932,6 +975,30 @@ window.Viz = (function () {
     if (data && data.error) throw new Error(data.error);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     return data;
+  }
+
+  // ===============================
+  // POST a JSON body and read the reply defensively.
+  //
+  // The reports run long, so a reply can come from something other than
+  // Express: Render's edge returns an empty 502/504 body when it gives up on
+  // a slow request, and a restarted process yields nothing at all.
+  //
+  // The long routes always answer 200 and carry failures as `{ error }` in
+  // the body (they must commit to a status before the work finishes, see
+  // lib/heartbeat.js), so an `error` field is thrown regardless of status.
+  // ===============================
+  async function postJson(url, body) {
+    await wakeServer();
+
+    const startedAt = Date.now();
+    try {
+      return await attemptPost(url, body);
+    } catch (err) {
+      if (!err.retryable || Date.now() - startedAt > RETRYABLE_MS) throw err;
+      // One retry, against a server that is now demonstrably awake.
+      return attemptPost(url, body);
+    }
   }
 
   return {

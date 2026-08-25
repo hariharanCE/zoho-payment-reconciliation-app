@@ -19,7 +19,9 @@ services:
     region: singapore
     buildCommand: npm ci
     startCommand: npm start
-    healthCheckPath: /
+    # Cheaper than serving the dashboard, and it touches no Zoho endpoint,
+    # so a health check can never burn an API call or wedge on a slow CRM.
+    healthCheckPath: /api/health
     envVars:
       - key: ZOHO_ACCOUNTS_URL
         sync: false
