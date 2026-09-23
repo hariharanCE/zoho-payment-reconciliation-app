@@ -67,6 +67,33 @@
         <span class="stat-label overdue">CRM vs Books gap</span>
         <span class="stat-sub">across mismatched deals</span>
       </div>
+            <div class="status-legend" role="group" aria-label="Validation status guide">
+        <span class="legend-title">Status guide</span>
+
+        <span class="status-key">
+          <i class="status-dot match"></i><b>Match</b>
+          <button type="button" class="info-tip" aria-label="What does Match mean?" aria-describedby="tip-match">i</button>
+          <span role="tooltip" id="tip-match" class="info-tip-text">
+            CRM and Zoho Books agree. The amount CRM shows as paid equals the amount Books has recorded as paid (within ₹1).
+          </span>
+        </span>
+
+        <span class="status-key">
+          <i class="status-dot mismatch"></i><b>Mismatch</b>
+          <button type="button" class="info-tip" aria-label="What does Mismatch mean?" aria-describedby="tip-mismatch">i</button>
+          <span role="tooltip" id="tip-mismatch" class="info-tip-text">
+            CRM and Books disagree on the amount paid: CRM shows more than Books, or Books shows more than CRM. Also used when the customer can't be found in Books. See the Remarks column for the exact reason.
+          </span>
+        </span>
+
+        <span class="status-key">
+          <i class="status-dot pending"></i><b>Pending</b>
+          <button type="button" class="info-tip" aria-label="What does Pending mean?" aria-describedby="tip-pending">i</button>
+          <span role="tooltip" id="tip-pending" class="info-tip-text">
+            Nothing collected yet: no payment is marked as paid in CRM and none is recorded as paid in Books.
+          </span>
+        </span>
+      </div>
     </section>
 
     <section class="filterbar" id="filterbar" aria-label="Filters" hidden>

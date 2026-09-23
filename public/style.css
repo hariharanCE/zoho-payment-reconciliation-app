@@ -399,7 +399,10 @@ th.sortable {
   cursor: pointer;
   user-select: none;
   padding-right: 22px;
-  position: relative;
+  /* No `position` here: `thead th` is already sticky, and a sticky element
+     is a positioned ancestor for the ::after sort arrow. Setting `relative`
+     on this selector would beat it on specificity and un-freeze every
+     sortable header. */
 }
 th.sortable:hover { background: var(--moss); }
 th.sortable::after {
@@ -754,7 +757,7 @@ body { padding-left: var(--rail); }
 .table-wrap.flat {
   margin-top: 12px;
   border: 1px solid var(--line);
-  max-height: none;
+  max-height: 68vh;
   box-shadow: none;
 }
 
@@ -1487,4 +1490,103 @@ tr.subrow td:first-child { padding-left: 34px; }
   .detail { padding: 0; }
   .detail-panel { border-radius: 0; max-height: 100%; }
   .detail-grid { grid-template-columns: max-content 1fr; }
+}
+
+/* The drill-down and detail panels scroll their own body, so the table
+   wrapper must not become a second scroller — that would trap the sticky
+   header inside a box that never scrolls. */
+.drill-body .table-wrap.flat,
+.detail-body .table-wrap.flat {
+  margin-top: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+/* ==========================================================
+   Reconciliation status legend
+   ========================================================== */
+.status-legend {
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #5a5f57;
+}
+.legend-title {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+  color: var(--muted);
+}
+.status-key {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-key b { font-weight: 700; color: var(--ink); }
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+.status-dot.match { background: var(--moss); }
+.status-dot.mismatch { background: var(--rust); }
+.status-dot.pending { background: var(--amber); }
+
+.info-tip {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--muted);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease),
+    border-color 0.15s var(--ease);
+}
+.info-tip:hover,
+.info-tip:focus {
+  background: var(--moss);
+  border-color: var(--moss);
+  color: #fff;
+}
+
+.info-tip-text {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 25;
+  width: 280px;
+  max-width: 80vw;
+  padding: 9px 11px;
+  background: var(--ink);
+  color: #f6f5f1;
+  border-radius: 6px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  box-shadow: var(--shadow-pop);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.15s var(--ease), transform 0.15s var(--ease),
+    visibility 0.15s;
+}
+.info-tip:hover + .info-tip-text,
+.info-tip:focus + .info-tip-text {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
 }
