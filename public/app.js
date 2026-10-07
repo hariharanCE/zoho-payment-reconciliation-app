@@ -63,6 +63,8 @@
     csvBtn: document.getElementById("csvBtn"),
     status: document.getElementById("status"),
     summary: document.getElementById("summary"),
+    monthly: document.getElementById("monthly"),
+    monthlyTable: document.getElementById("monthlyTable"),
     filterbar: document.getElementById("filterbar"),
     table: document.getElementById("reportTable"),
     searchBox: document.getElementById("searchBox"),
@@ -181,6 +183,106 @@
   }
 
   // ===============================
+  // Monthly closing deal amount
+  //
+  // Groups the report rows by the month of their Closing Date and adds up the
+  // deal (course) amount. Built with createElement/textContent only, the same
+  // rule as the main table, so nothing from the CRM is ever treated as markup.
+  // ===============================
+  const MONTH_NAMES = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+
+  function monthLabel(key) {
+    // key is "yyyy-MM"
+    const [y, m] = key.split("-");
+    return `${MONTH_NAMES[Number(m) - 1] || m} ${y}`;
+  }
+
+  function summariseByMonth(rows) {
+    const byMonth = new Map();
+    for (const row of rows) {
+      // closingDate is yyyy-MM-dd (from toDateOnly), so the first 7 chars are the month.
+      const key = (row.closingDate || "").slice(0, 7);
+      if (!/^\d{4}-\d{2}$/.test(key)) continue;
+      const entry = byMonth.get(key) || { key, deals: 0, amount: 0 };
+      entry.deals += 1;
+      entry.amount += Number(row.courseAmount) || 0;
+      byMonth.set(key, entry);
+    }
+    // Oldest month first; yyyy-MM sorts correctly as plain text.
+    return Array.from(byMonth.values()).sort((a, b) => a.key.localeCompare(b.key));
+  }
+
+  function makeCell(tag, text, className) {
+    const cell = document.createElement(tag);
+    cell.textContent = text;
+    if (className) cell.className = className;
+    return cell;
+  }
+
+  function updateMonthly(rows) {
+    const months = summariseByMonth(rows);
+    const thead = els.monthlyTable.tHead;
+    const tbody = els.monthlyTable.tBodies[0];
+    const tfoot = els.monthlyTable.tFoot;
+    thead.replaceChildren();
+    tbody.replaceChildren();
+    tfoot.replaceChildren();
+
+    if (months.length === 0) {
+      els.monthly.hidden = true;
+      return;
+    }
+
+    const headRow = document.createElement("tr");
+    headRow.append(
+      makeCell("th", "Month"),
+      makeCell("th", "Deals", "num"),
+      makeCell("th", "Total closing amount", "num"),
+      makeCell("th", "Share")
+    );
+    thead.appendChild(headRow);
+
+    const maxAmount = Math.max(...months.map((m) => m.amount), 1);
+    let totalDeals = 0;
+    let totalAmount = 0;
+
+    for (const m of months) {
+      totalDeals += m.deals;
+      totalAmount += m.amount;
+
+      const tr = document.createElement("tr");
+      const barCell = document.createElement("td");
+      barCell.className = "monthly-bar-cell";
+      const bar = document.createElement("div");
+      bar.className = "monthly-bar";
+      bar.style.width = `${Math.round((m.amount / maxAmount) * 100)}%`;
+      barCell.appendChild(bar);
+
+      tr.append(
+        makeCell("td", monthLabel(m.key)),
+        makeCell("td", count(m.deals), "num"),
+        makeCell("td", money(m.amount), "num"),
+        barCell
+      );
+      tbody.appendChild(tr);
+    }
+
+    const footRow = document.createElement("tr");
+    footRow.append(
+      makeCell("td", "Total"),
+      makeCell("td", count(totalDeals), "num"),
+      makeCell("td", money(totalAmount), "num"),
+      makeCell("td", "")
+    );
+    tfoot.appendChild(footRow);
+
+    els.monthly.hidden = false;
+  }
+
+  // ===============================
   // CSV — always every column, whatever the table is showing.
   // ===============================
   function toCsv(rows) {
@@ -227,6 +329,7 @@
 
       allRows = data.rows;
       updateSummary(allRows);
+      updateMonthly(allRows);
       refresh();
       setStatus(
         `Done. ${data.dealsInRange} deal(s) in range out of ${data.totalClosedWonDeals} total Closed Won deals. Click any column heading to sort.`,

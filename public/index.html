@@ -96,6 +96,22 @@
       </div>
     </section>
 
+    <!-- NEW: month-wise total of the closed deal (course) amount. Filled in by
+         updateMonthly() in app.js. -->
+    <section class="monthly" id="monthly" hidden aria-label="Closing deal amount by month">
+      <div class="monthly-head">
+        <h2>Closing deal amount by month</h2>
+        <span class="monthly-sub">Total course amount of Closed Won deals, grouped by Closing Date</span>
+      </div>
+      <div class="monthly-scroll">
+        <table id="monthlyTable" class="monthly-table">
+          <thead></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </section>
+
     <section class="filterbar" id="filterbar" aria-label="Filters" hidden>
       <div class="field search-field">
         <label for="searchBox">Search</label>
